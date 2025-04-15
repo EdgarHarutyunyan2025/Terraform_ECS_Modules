@@ -14,6 +14,7 @@ resource "null_resource" "docker_login" {
 resource "null_resource" "docker_push" {
   provisioner "local-exec" {
     command = <<EOT
+      docker builld -t ${var.docker-image} .
       docker tag ${var.docker-image} ${aws_ecr_repository.main_image.repository_url}:latest
       docker push ${aws_ecr_repository.main_image.repository_url}:latest
     EOT

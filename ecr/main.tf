@@ -22,3 +22,25 @@ resource "null_resource" "docker_push" {
   depends_on = [null_resource.docker_login]
 }
 
+resource "aws_ecr_lifecycle_policy" "clean_old_images" {
+  repository = aws_ecr_repository.main_image.name
+
+  policy = jsonencode({
+    rules = [
+      {
+        rulePriority = 1
+        description  = var.lifecycle_description
+        selection = {
+          tagStatus   = var.lifecycle_tag_status # "untagged"
+          countType   = var.lifecycle_count_type # "sinceImagePushed"
+          countUnit   = "days"
+          countNumber = var.lifecycle_count_number # 1
+        }
+        action = {
+          type = "expire"
+        }
+      }
+    ]
+  })
+}
+
